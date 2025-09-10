@@ -1,0 +1,10 @@
+@keyframes lighting {
+  0% {
+    box-shadow: 0 0 5px 1px #3a6ff7;
+  }
+  100% {
+    box-shadow:
+      0 0 48px 8px #3a6ff7,
+      0 0 128px 32px #1a2950 inset;
+  }
+}

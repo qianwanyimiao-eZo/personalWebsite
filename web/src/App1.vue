@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router';
-import TopMenu from './components/TopMenu/index.vue';
-import Background from './components/Background/index.vue';
+import { RouterView } from 'vue-router'
+import TopMenu from './components/TopMenu/index.vue'
+import Background from "./components/Background/index.vue"
 </script>
 
 <template>

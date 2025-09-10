@@ -1,39 +1,38 @@
-import { globalIgnores } from 'eslint/config'
-import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
-import pluginVue from 'eslint-plugin-vue'
-import pluginVitest from '@vitest/eslint-plugin'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import pluginCypress from 'eslint-plugin-cypress'
-import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
-
-// To allow more languages other than `ts` in `.vue` files, uncomment the following lines:
-// import { configureVueProject } from '@vue/eslint-config-typescript'
-// configureVueProject({ scriptLangs: ['ts', 'tsx'] })
-// More info at https://github.com/vuejs/eslint-config-typescript/#advanced-setup
-
-export default defineConfigWithVueTs(
-  {
-    name: 'app/files-to-lint',
-    files: ['**/*.{ts,mts,tsx,vue}'],
+export default {
+  root: true,
+  env: {
+    browser: true,
+    es2021: true,
+    node: true,
   },
-
-  globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**']),
-
-  pluginVue.configs['flat/essential'],
-  vueTsConfigs.recommended,
-  
-  {
-    ...pluginVitest.configs.recommended,
-    files: ['src/**/__tests__/*'],
+  extends: [
+    'eslint:recommended',
+    'plugin:vue/vue3-recommended',
+    'plugin:@typescript-eslint/recommended',
+    '@vue/eslint-config-typescript',
+    '@vue/eslint-config-prettier', // 关闭 ESLint 中与 Prettier 冲突的规则
+  ],
+  parser: 'vue-eslint-parser',
+  parserOptions: {
+    parser: '@typescript-eslint/parser',
+    ecmaVersion: 2021,
+    sourceType: 'module',
+    ecmaFeatures: {
+      jsx: true,
+    },
   },
-  
-  {
-    ...pluginCypress.configs.recommended,
-    files: [
-      'cypress/e2e/**/*.{cy,spec}.{js,ts,jsx,tsx}',
-      'cypress/support/**/*.{js,ts,jsx,tsx}'
-    ],
+  plugins: ['vue', '@typescript-eslint'],
+  rules: {
+    // 这里可以根据需要自定义规则
+    'vue/multi-word-component-names': 'off',
+    'prettier/prettier': 'off', // 避免与 Prettier 冲突
   },
-  skipFormatting,
-)
+  overrides: [
+    {
+      files: ['*.vue'],
+      rules: {
+        'max-len': 'off',
+      },
+    },
+  ],
+};
