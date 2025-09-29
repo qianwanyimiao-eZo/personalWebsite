@@ -91,9 +91,8 @@ onBeforeUnmount(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  /* transition: all 0.18s linear; */
-  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
-  /* transition-duration: 0.3s; */
+  transition: all 0.18s linear;
+  /* transition-timing-function: cubic-bezier(0, 0, 0.2, 1); */
 }
 .hero-title {
   font-size: 2.8rem;
