@@ -8,25 +8,28 @@ const handleScroll = debounce((e: Event) => {
   // 获取当前的垂直滚动位置
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
   // 判断滚动位置是否在顶部（通常认为小于等于0时在顶部）
-
+  const menu = document.querySelector('.el-menu') as HTMLElement;
+  console.log("滚动", menu, scrollTop);
+  if(!menu) return;
   if (scrollTop <= 0) {
-    console.log('滚动条在页面顶部');
-    // 在这里可以执行相关操作，例如显示固定在顶部的导航栏
+    menu.classList.add('at-top');
   } else {
-    console.log('滚动条不在顶部');
-    // 可以执行其他操作，例如隐藏固定在顶部的导航栏
+    menu.classList.remove('at-top');
   }
 }, 100);
 
+const activeIndex = ref('home');
+
 onMounted(() => {
   window.addEventListener('scroll', handleScroll);
+  const currentPath = window.location.pathname?.split('/')[1] || 'home';
+  activeIndex.value = currentPath;
 });
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
 });
 
-const activeIndex = ref('home');
 const handleSelect = (key: string, keyPath: string[]) => {
   console.log('Selected menu item index:', key, keyPath);
   router.push('/' + key);
@@ -54,14 +57,21 @@ const handleSelect = (key: string, keyPath: string[]) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgba(10, 24, 55, 0.82);
+  background: #1a1a1acc;
   position: relative;
   min-height: 64px;
   backdrop-filter: blur(2px);
-  border: none;
+  border: 1px solid rgba(255,255,255,.1);
+  transition: all 0.3s ease;
+  margin: 5px 5px 0 5px;
+}
+
+.at-top {
+  border: none !important;
+  background: transparent !important;
 }
 /* 柔和蓝色渐变底边 */
-.el-menu::after {
+/* .el-menu::after {
   content: '';
   position: absolute;
   left: 0;
@@ -69,11 +79,10 @@ const handleSelect = (key: string, keyPath: string[]) => {
   bottom: 0;
   height: 12px;
   pointer-events: none;
-  /* 上方与菜单背景一致，下方与整体背景一致 */
   background: linear-gradient(
     to bottom,
     rgba(10, 24, 55, 0.82) 0%,
-    rgba(58, 111, 247, 0.18) 60%,
+    rgba(58, 111, 247, 0.18) 30%,
     rgba(90, 180, 255, 0.12) 85%,
     #000 100%
   );
@@ -81,7 +90,7 @@ const handleSelect = (key: string, keyPath: string[]) => {
   border-radius: 0 0 12px 12px;
   z-index: 1;
   filter: blur(1.5px);
-}
+} */
 
 .el-menu-item {
   font-size: 1.18rem;

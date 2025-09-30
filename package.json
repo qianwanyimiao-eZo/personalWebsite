@@ -1,6 +1,6 @@
 {
   "name": "personal-website",
-  "cicdName": ["oss-xdragon-subsystem-base-react", "xdragon-cicd-helper"],
+  "cicdName": ["xdragon-cicd-helper", "xdragon-base-componets", "oss-xdragon-admin"],
   "version": "0.0.0",
   "private": true,
   "type": "module",
