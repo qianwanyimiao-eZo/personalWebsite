@@ -20,9 +20,23 @@ interface Firefly {
   maxLife: number
 }
 
+interface StarDust {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  alpha: number
+  radius: number
+  life: number
+  maxLife: number
+  brightness: number
+}
+
 const fireflies: Firefly[] = []
 const maxFireflies = 40
-const mouseFireflies: Firefly[] = []
+const starDustParticles: StarDust[] = []
+let lastMouseX = 0
+let lastMouseY = 0
 
 function randomFirefly(width: number, height: number): Firefly {
   return {
@@ -48,17 +62,24 @@ function addFirefly(width: number, height: number) {
   }
 }
 
-function addMouseFirefly(x: number, y: number) {
-  mouseFireflies.push({
-    x,
-    y,
-    vx: (Math.random() - 0.5) * 0.8,
-    vy: (Math.random() - 0.5) * 0.8,
-    alpha: 1,
-    radius: Math.random() * 3 + 2,
-    life: 0,
-    maxLife: 5 + Math.random() * 10,
-  })
+function addStarDust(x: number, y: number) {
+  // 在鼠标位置生成10-15个星尘粒子
+  const particleCount = 10 + Math.floor(Math.random() * 6)
+
+  for (let i = 0; i < particleCount; i++) {
+    const particle: StarDust = {
+      x: x + (Math.random() - 0.5) * 20, // 在鼠标周围20px范围内随机分布
+      y: y + (Math.random() - 0.5) * 20,
+      vx: (Math.random() - 0.5) * 0.8, // 微小的随机速度
+      vy: (Math.random() - 0.5) * 0.8,
+      alpha: 0.8 + Math.random() * 0.2, // 初始alpha 0.8-1.0
+      radius: 0.5 + Math.random() * 1.5, // 半径 0.5-2px
+      life: 0,
+      maxLife: 60 + Math.random() * 60, // 生命周期 60-120帧
+      brightness: 0.5 + Math.random() * 0.5 // 亮度变化 0.5-1.0
+    }
+    starDustParticles.push(particle)
+  }
 }
 
 function drawFirefly(f: Firefly) {
@@ -70,6 +91,32 @@ function drawFirefly(f: Firefly) {
   ctx.shadowColor = 'rgba(100,180,255,0.7)'
   ctx.shadowBlur = 12
   ctx.globalAlpha = f.alpha
+  ctx.fill()
+  ctx.restore()
+}
+
+function drawStarDust(particle: StarDust) {
+  if (!ctx) return
+  ctx.save()
+
+  // 根据生命周期计算当前alpha
+  const lifeProgress = particle.life / particle.maxLife
+  const currentAlpha = particle.alpha * (1 - lifeProgress) // 线性衰减
+
+  // 星尘颜色：从亮蓝到深蓝渐变
+  const r = Math.floor(120 + 135 * particle.brightness) // 120-255
+  const g = Math.floor(180 + 75 * particle.brightness)  // 180-255
+  const b = 255
+
+  ctx.globalAlpha = currentAlpha
+  ctx.beginPath()
+  ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2)
+  ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 1)`
+
+  // 添加微弱的发光效果
+  ctx.shadowColor = `rgba(${r}, ${g}, ${b}, 0.6)`
+  ctx.shadowBlur = particle.radius * 3
+
   ctx.fill()
   ctx.restore()
 }
@@ -99,21 +146,26 @@ function animate() {
       fireflies.splice(i, 1)
     }
   }
-  // 鼠标萤火虫
-  for (let i = mouseFireflies.length - 1; i >= 0; i--) {
-    const f = mouseFireflies[i]
-    f.x += f.vx
-    f.y += f.vy
-    f.life++
-    // alpha渐变
-    if (f.life < f.maxLife / 3) {
-      f.alpha = Math.min(1, f.alpha + 0.04)
-    } else if (f.life > f.maxLife * 0.7) {
-      f.alpha = Math.max(0, f.alpha - 0.06)
-    }
-    drawFirefly(f)
-    if (f.life > f.maxLife || f.alpha <= 0) {
-      mouseFireflies.splice(i, 1)
+
+  // 星尘粒子更新和绘制
+  for (let i = starDustParticles.length - 1; i >= 0; i--) {
+    const particle = starDustParticles[i]
+
+    // 更新位置和生命周期
+    particle.x += particle.vx
+    particle.y += particle.vy
+    particle.life++
+
+    // 添加微弱的重力效果和阻力
+    particle.vy += 0.01 // 轻微下沉
+    particle.vx *= 0.995 // 阻力
+    particle.vy *= 0.995
+
+    drawStarDust(particle)
+
+    // 移除超出生命周期的粒子
+    if (particle.life > particle.maxLife || particle.x < -10 || particle.x > width + 10 || particle.y < -10 || particle.y > height + 10) {
+      starDustParticles.splice(i, 1)
     }
   }
 
@@ -142,10 +194,21 @@ function handleMouseMove(e: MouseEvent) {
   const dpr = window.devicePixelRatio || 1
   const x = (e.clientX - rect.left) * dpr
   const y = (e.clientY - rect.top) * dpr
-  // 鼠标移动时生成多个荧光点
-  for (let i = 0; i < 2; i++) {
-    addMouseFirefly(x + Math.random() * 10 - 5, y + Math.random() * 10 - 5)
+
+  // 计算鼠标移动距离
+  const distance = Math.sqrt((x - lastMouseX) ** 2 + (y - lastMouseY) ** 2)
+
+  // 只有当鼠标移动距离足够时才生成星尘（避免静止时过多粒子）
+  if (distance > 5) {
+    // 根据移动速度调整粒子生成频率
+    const speed = Math.min(distance / 10, 3) // 速度因子 0-3
+    if (Math.random() < 0.3 + speed * 0.1) { // 基础30%概率 + 速度加成
+      addStarDust(x, y)
+    }
   }
+
+  lastMouseX = x
+  lastMouseY = y
 }
 
 onMounted(() => {

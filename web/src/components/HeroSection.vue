@@ -79,12 +79,11 @@ onBeforeUnmount(() => {
   box-sizing: border-box;
 }
 .hero-content {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0);
   border-radius: 32px;
   text-align: center;
   position: relative;
   z-index: 2;
-  backdrop-filter: blur(2px);
   width: 80%;
   height: 100%;
   display: flex;

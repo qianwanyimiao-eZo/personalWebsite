@@ -5,6 +5,7 @@ import AboutSection from '@/components/AboutSection.vue';
 import ProjectsSection from '@/components/ProjectsSection.vue';
 import ContactSection from '@/components/ContactSection.vue';
 import ScrollProgressNav from '@/components/ScrollProgressNav.vue';
+import Bottom from '@/components/Bottom.vue';
 import { useAutoCenterSection } from '@/composables/useAutoCenterSection';
 
 const navItems = [
@@ -45,6 +46,7 @@ onBeforeUnmount(() => {
     <ProjectsSection id="projects" />
     <ContactSection id="contact" />
     <ScrollProgressNav :items="navItems" />
+    <Bottom />
   </main>
 </template>
 
